@@ -31,7 +31,7 @@ void Parser::Regex()
 	}
 
 	if (index_ < regex_.length())
-		error_ = false;
+		error_ = true;
 }
 
 void Parser::Concat()
