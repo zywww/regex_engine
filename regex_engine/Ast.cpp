@@ -3,6 +3,18 @@
 
 using std::endl;
 using std::cout;
+using std::make_pair;
+
+void AstNode::print()
+{
+
+}
+StatePtrPair AstNode::constructNFA()
+{
+	return make_pair(nullptr, nullptr);
+}
+
+// Class AstNode End
 
 AstFactor::AstFactor(char ch) : ch_(ch)
 {
@@ -11,6 +23,15 @@ AstFactor::AstFactor(char ch) : ch_(ch)
 void AstFactor::print()
 {
 	cout << ch_ << endl;
+}
+
+StatePtrPair AstFactor::constructNFA()
+{
+	auto start = new NfaState();
+	auto end = new NfaState();
+	auto edge = new NfaEdge(start, end, ch_);
+
+	return make_pair(start, end);
 }
 
 // Class AstFactor End
@@ -29,6 +50,22 @@ void AstOR::print()
 		rightNode_->print();
 }
 
+StatePtrPair AstOR::constructNFA()
+{
+	auto left = leftNode_->constructNFA();
+	auto right = rightNode_->constructNFA();
+
+	auto start = new NfaState();
+	auto end = new NfaState();
+
+	auto startToLeft = new NfaEdge(start, left.first, '\0');
+	auto startToRight = new NfaEdge(start, right.first, '\0');
+	auto leftToEnd = new NfaEdge(left.second, end, '\0');
+	auto rightToEnd = new NfaEdge(right.second, end, '\0');
+
+	return make_pair(start, end);
+}
+
 // Class AstOR End
 
 AstConcat::AstConcat(AstNode *leftNode, AstNode *rightNode)
@@ -45,6 +82,20 @@ void AstConcat::print()
 		rightNode_->print();
 }
 
+StatePtrPair AstConcat::constructNFA()
+{
+	auto left = leftNode_->constructNFA();
+	auto right = rightNode_->constructNFA();
+
+	for (auto edge : right.first->outEdges_)
+	{
+		edge->startState_ = left.second;
+		left.second->outEdges_.push_back(edge);
+	}
+	
+	return make_pair(left.first, right.second);
+}
+
 // Class AstConcat End
 
 AstStar::AstStar(AstNode *node) : node_(node)
@@ -56,6 +107,20 @@ void AstStar::print()
 	if (node_)
 		node_->print();
 	cout << '*' << endl;
+}
+
+StatePtrPair AstStar::constructNFA()
+{
+	auto node = node_->constructNFA();
+	auto start = new NfaState();
+	auto end = new NfaState();
+
+	auto startToNode = new NfaEdge(start, node.first, '\0');
+	auto startToEnd = new NfaEdge(start, end, '\0');
+	auto nodeToNode = new NfaEdge(node.second, node.first, '\0');
+	auto nodeToEnd = new NfaEdge(node.second, end, '\0');
+
+	return make_pair(start, end);
 }
 
 // Class AstStar End

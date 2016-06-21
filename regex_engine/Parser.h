@@ -7,7 +7,7 @@
 class Parser
 {
 public:
-	Parser(std::string regualrExpr);
+	Parser(std::string regualrExpr, std::string matchContent);
 
 	void		Parse();
 	AstNode*	Regex();
@@ -23,6 +23,7 @@ private:
 
 
 	std::string					regex_;
+	std::string					matchContent_;
 	bool						error_ = false;
 	std::string::size_type		index_ = 0;
 	char						ch_;

@@ -3,19 +3,21 @@
 #include <cctype>
 #include <cassert>
 #include "Parser.h"
+#include "Nfa.h"
 
 using std::string;
 using std::cout;
 using std::endl;
 
-Parser::Parser(string regualrExpr) : regex_(regualrExpr), ch_(regex_[0])
+Parser::Parser(string regualrExpr, std::string matchContent) 
+	: regex_(regualrExpr), matchContent_(matchContent), ch_(regex_[0])
 {
 }
 
 void Parser::Parse()
 {
 	AstNode *astRoot = Regex();
-
+	
 	
 	if (index_ < regex_.length())
 		error_ = true;
@@ -24,6 +26,10 @@ void Parser::Parse()
 		cout << "regex syntex error!" << endl;
 	else
 	{
+		auto nfa = astRoot->constructNFA();
+		nfa.second->accept = true;
+		//RunNfa(nfa.first, matchContent_);
+
 		cout << "regex syntex right." << endl;
 		astRoot->print();
 	}

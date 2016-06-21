@@ -1,10 +1,16 @@
 #ifndef AST_H
 #define AST_H
 
+#include <utility>	
+#include "Nfa.h"
+
+using StatePtrPair = std::pair<NfaState*, NfaState*>;
+
 class AstNode
 {
 public:
-	virtual void print() {}
+	virtual void print();
+	virtual StatePtrPair constructNFA();
 };
 
 class AstFactor : public AstNode
@@ -13,6 +19,8 @@ public:
 	AstFactor(char ch);
 	
 	void print();
+
+	StatePtrPair constructNFA();
 
 private:
 	char		ch_;
@@ -24,6 +32,8 @@ public:
 	AstOR(AstNode *leftNode, AstNode *rightNode);
 
 	void print();
+
+	StatePtrPair constructNFA();
 
 private:
 	AstNode		*leftNode_;
@@ -37,6 +47,8 @@ public:
 
 	void print();
 
+	StatePtrPair constructNFA();
+
 private:
 	AstNode		*leftNode_;
 	AstNode		*rightNode_;
@@ -48,6 +60,8 @@ public:
 	AstStar(AstNode *node);
 
 	void print();
+
+	StatePtrPair constructNFA();
 
 private:
 	AstNode		*node_;

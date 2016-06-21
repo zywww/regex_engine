@@ -24,12 +24,18 @@
     <ClCompile Include="Ast.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Nfa.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Parser.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Ast.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Nfa.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

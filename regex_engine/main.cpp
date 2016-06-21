@@ -8,7 +8,7 @@ using std::cin;
 
 int main()
 {
-	Parser p("(b*(a|3)*|c)*ss"); 
+	Parser p("(a|b)*abb", "77"); 
 	p.Parse();
 
 	system("pause");
