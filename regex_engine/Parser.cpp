@@ -28,10 +28,14 @@ void Parser::Parse()
 	{
 		auto nfa = astRoot->constructNFA();
 		nfa.second->accept = true;
-		//RunNfa(nfa.first, matchContent_);
+		bool accept = RunNfa(nfa.first, matchContent_);
 
 		cout << "regex syntex right." << endl;
-		astRoot->print();
+		if (accept)
+			cout << "match" << endl;
+		else
+			cout << "not match" << endl;
+		//astRoot->print();
 	}
 		
 }

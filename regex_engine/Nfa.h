@@ -32,4 +32,6 @@ public:
 bool					RunNfa(NfaState *start, std::string matchString);
 std::set<NfaState*>		EpsilonClosure(std::set<NfaState*> oldSet);
 std::set<NfaState*>		Move(std::set<NfaState*> oldSet, char ch);
+void					AddState(std::set<NfaState*> &newSet, NfaState *state);
+
 #endif
