@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <cctype>
+#include <cassert>
 #include "Parser.h"
 
 using std::string;
@@ -9,75 +10,91 @@ using std::endl;
 
 Parser::Parser(string regualrExpr) : regex_(regualrExpr), ch_(regex_[0])
 {
-	regex_ += '\0';
 }
 
 void Parser::Parse()
 {
-	Regex();
+	AstNode *astRoot = Regex();
+
+	
+	if (index_ < regex_.length())
+		error_ = true;
+
 	if (error_)
 		cout << "regex syntex error!" << endl;
 	else
+	{
 		cout << "regex syntex right." << endl;
+		astRoot->print();
+	}
+		
 }
 
-void Parser::Regex()
+AstNode* Parser::Regex()
 {
-	Concat();
-	while (Match('|') && !IsEnd())
+	AstNode *node = Concat();
+	while (Match('|'))
 	{
 		Read();
-		Concat();
+		node = new AstOR(node, Concat());
 	}
-
-	if (index_ < regex_.length())
-		error_ = true;
+	return node;
 }
 
-void Parser::Concat()
+AstNode* Parser::Concat()
 {
-	Element();
+	AstNode *node = Element();
 	while (std::isalnum(ch_) || Match('('))
-		Element();
+		node = new AstConcat(node, Element());
+	return node;
 }
 
-void Parser::Element()
+AstNode* Parser::Element()
 {
-	Factor();
+	AstNode *node = Factor();
 	if (Match('*'))
+	{
+		node = new AstStar(node);
 		Read();
+	}
+	return node;
 }
 
-void Parser::Factor()
+AstNode* Parser::Factor()
 {
+	AstNode * node = nullptr;
 	if (Match('('))
 	{
 		Read();
-		Regex();
-		MatchAndRead(')');
+		node = Regex();
+		if (Match(')'))
+		{
+			Read();
+		}
+		else
+		{
+			assert(false && "缺少 ')'");
+		}
 	}
 	else if (std::isalnum(ch_))
 	{
-			Read();
+		node = new AstFactor(ch_);
+		Read();
 	}
 	else
 	{
+		assert(false && "缺少因子");
 		error_ = true;
 		Read();
 	}
-}
-
-bool Parser::IsEnd()
-{
-	if (index_ >= regex_.length())
-		return true;
-	else
-		return false;
+	return node;
 }
 
 void Parser::Read()
 {
 	ch_ = regex_[++index_];
+	if (index_ >= regex_.length())
+		ch_ = '\0';
 }
 
 bool Parser::Match(char ch)
@@ -88,17 +105,19 @@ bool Parser::Match(char ch)
 		return false;
 }
 
-bool Parser::MatchAndRead(char ch)
-{
-	if (ch_ == ch)
-	{
-		Read();
-		return true;
-	}
-	else
-	{
-		error_ = true;
-		Read();
-		return false;
-	}
-}
+//
+//bool Parser::MatchAndRead(char ch)
+//{
+//	if (ch_ == ch)
+//	{
+//		Read();
+//		return true;
+//	}
+//	else
+//	{
+//		// assert(true && "缺少")
+//		error_ = true;
+//		Read();
+//		return false;
+//	}
+//}
