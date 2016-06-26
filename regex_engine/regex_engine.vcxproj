@@ -111,14 +111,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ast.cpp" />
+    <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Nfa.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ast.h" />
+    <ClInclude Include="Lexer.h" />
     <ClInclude Include="Nfa.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="Token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
