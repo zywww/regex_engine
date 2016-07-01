@@ -10,7 +10,7 @@ enum class TokenType
 	LP,				// (   非简单字符，转义之后成为简单字符
 	RP,				// )
 	ZERO_OR_MORE,	// *
-	ONE_OR_ZERO,	// +
+	ONE_OR_MORE,	// +
 	ZERO_OR_ONE,	// ?
 	HYPHEN,			// -   连接号
 	ANY,			// .
@@ -22,6 +22,8 @@ enum class TokenType
 	RBRACE,			// }
 	OR,				// |
 
+
+
 	
 	TAB,			// \t
 	NEWLINE,		// \n
@@ -32,13 +34,17 @@ enum class TokenType
 	WORD,			// \w  ==  [a-zA-Z0-9_]
 	NOT_WORD,		// \W  ==  [^a-zA-Z0-9_]
 
-	INTEGER			// 整数，只用于 regex{min, max}
+	INTEGER,		// 整数，只用于 regex{min, max}
+
+	END
 };
 
 struct Token
 {
+	Token(TokenType type, std::string lexeme);
+
 	TokenType		type_;
-	std::string		lexeme;
+	std::string		lexeme_;
 };
 
 #endif
