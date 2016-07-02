@@ -21,7 +21,7 @@ Lexer::Lexer(string regex) : regex_(regex)
 Token Lexer::GetNextToken()
 {
 	State state = State::START;
-
+	
 	while (index_ < regex_.length())
 	{
 		char ch = regex_[index_++];
@@ -58,7 +58,7 @@ Token Lexer::GetNextToken()
 			switch (ch)
 			{
 			case 't': return Token(TokenType::TAB, string("\\") + ch);
-			case 'n': return Token(TokenType::NEWLINE, string("\\" + ch));
+			case 'n': return Token(TokenType::NEWLINE, string("\\") + ch);
 			case 'd': return Token(TokenType::DIGIT, string("\\") + ch);
 			case 'D': return Token(TokenType::NOT_DIGIT, string("\\") + ch);
 			case 's': return Token(TokenType::SPACE, string("\\") + ch);
@@ -71,7 +71,6 @@ Token Lexer::GetNextToken()
 		default:
 			Error(ch);
 		}
-	
 	}
 
 	if (state == State::BACKSLASH)
@@ -79,7 +78,7 @@ Token Lexer::GetNextToken()
 		error_ = true;
 		cout << "¿ÕµÄ×ªÒå×Ö·û" << endl;
 	}
-	return Token(TokenType::END, '\0');
+	return Token(TokenType::END, "\0");
 }
 
 void Lexer::Error(char ch)

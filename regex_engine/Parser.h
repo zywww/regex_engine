@@ -3,6 +3,7 @@
 
 #include <string>
 #include "Ast.h"
+#include "Lexer.h"	
 
 class Parser
 {

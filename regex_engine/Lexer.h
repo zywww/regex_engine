@@ -16,7 +16,6 @@ private:
 	void						Error(char ch);
 
 	std::string					regex_;
-	std::string					buffer_;
 	std::string::size_type		index_ = 0;
 	bool						error_ = false;
 };
