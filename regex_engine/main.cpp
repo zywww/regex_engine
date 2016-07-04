@@ -12,13 +12,10 @@ int main()
 	//Lexer lex("()*+-.?[]^{|}");
 	//Lexer lex("\\t\\n\\d\\D\\s\\S\\w\\W");
 	//Lexer lex("\\0\\1\\2\\3\\4\\5\\6\\7\\8\\9\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z");
-	Lexer lex("\\!\\\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,\\-\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~");
+	//Lexer lex("\\!\\\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,\\-\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~");
 
-	auto token = lex.GetNextToken();
-	while (token.type_ != TokenType::END)
-	{
-		token = lex.GetNextToken();
-	}
+	Parser engine("abc*");
+	engine.Parse();
 
 	system("pause");
 	return 0;

@@ -8,7 +8,7 @@
 class Lexer
 {
 public:
-	Lexer(std::string regex);
+	Lexer(const std::string &regex);
 
 	Token						GetNextToken();
 

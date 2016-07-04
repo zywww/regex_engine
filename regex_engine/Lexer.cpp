@@ -14,7 +14,7 @@ enum class State
 	INTEGER
 };
 
-Lexer::Lexer(string regex) : regex_(regex)
+Lexer::Lexer(const std::string &regex) : regex_(regex)
 {
 }
 
