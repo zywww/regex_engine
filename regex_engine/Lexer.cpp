@@ -31,7 +31,7 @@ Token Lexer::GetNextToken()
 			switch (ch)
 			{
 			case '!':case '"':case '#':case '$':case '%':case '&':case '\'':case ',':case '/':
-			case ':':case ';':case '<':case '=':case '>':case '@':case '_': case '`':case '~':
+			case ':':case ';':case '<':case '=':case '>':case '@':case '_': case '`':case '~':case ' ': 
 				return Token(TokenType::SIMPLE_CHAR, string() + ch);
 			case '(': return Token(TokenType::LP, string() + ch);			// TODO ”√ lambada ºı…Ÿ¥˙¬Î 
 			case ')': return Token(TokenType::RP, string() + ch); 

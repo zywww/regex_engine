@@ -150,6 +150,8 @@ void Parser::Error(const string &info)
 void Parser::Parse()
 {
 	Regex();
+	if (!Match(TokenType::END))
+		error_ = true;
 	if (error_)
 		cout << "正则表达式语法错误" << endl;
 	else
@@ -159,12 +161,9 @@ void Parser::Parse()
 void Parser::Regex()
 {
 	Term();
-	while (!Match(TokenType::END))
+	while (Match(TokenType::OR))
 	{
-		if (!Match(TokenType::OR))
-			Error(string("错误的符号") + token_.lexeme_);
-		else
-			GetNextToken();
+		GetNextToken();
 		Term();
 	}
 }
@@ -172,9 +171,35 @@ void Parser::Regex()
 void Parser::Term()
 {
 	Factor();
-	while (!(Match(TokenType::OR) || Match(TokenType::END)))
+	//while (!(Match(TokenType::OR) || Match(TokenType::END)))//factor的首字母
+	//{
+	//	Factor();
+	//}
+	while (true)
 	{
-		Factor();
+		bool into = false;
+		switch (token_.type_)
+		{
+		case TokenType::LBRACKET:
+		case TokenType::LP:
+		case TokenType::SIMPLE_CHAR:
+		case TokenType::TAB:
+		case TokenType::NEWLINE:
+		case TokenType::DIGIT:
+		case TokenType::NOT_DIGIT:
+		case TokenType::SPACE:
+		case TokenType::NOT_SPACE:
+		case TokenType::WORD:
+		case TokenType::NOT_WORD:
+			Factor();
+			into = true;
+			break;
+		default:
+			into = false;
+			break;
+		}
+		if (!into)
+			break;
 	}
 }
 
@@ -210,10 +235,18 @@ void Parser::Atom()
 		{
 			GetNextToken();
 			Charclass();
+			if (!Match(TokenType::RBRACKET))
+				Error("缺少 ']'");
+			else
+				GetNextToken();
 		}
 		else
 		{
 			Charclass();
+			if (!Match(TokenType::RBRACKET))
+				Error("缺少 ']'");
+			else
+				GetNextToken();
 		}
 		break;
 	default:
@@ -228,6 +261,7 @@ void Parser::Repeat()
 	switch (token_.type_)
 	{
 	case TokenType::LBRACE:
+		GetNextToken();
 		min = Digit();
 		if (Match(TokenType::SIMPLE_CHAR) && token_.lexeme_ == ",")
 		{
@@ -246,6 +280,14 @@ void Parser::Repeat()
 					GetNextToken();
 			}
 		}
+		else if (Match(TokenType::RBRACE))
+		{
+			GetNextToken();
+		}
+		else
+		{
+			Error("");
+		}
 		break;
 	case TokenType::ZERO_OR_MORE:
 		GetNextToken();
@@ -263,10 +305,11 @@ void Parser::Repeat()
 
 void Parser::Character()
 {
-	switch (token_.type_)
+	const auto type = token_.type_;
+	switch (type)
 	{
 	case TokenType::SIMPLE_CHAR:
-		GetNextToken();
+		GetNextToken(); 
 		break;
 	case TokenType::TAB:
 	case TokenType::NEWLINE:
@@ -307,6 +350,7 @@ int Parser::Digit()
 	while (Match(TokenType::SIMPLE_CHAR) && std::isalnum(token_.lexeme_[0]))
 	{
 		buffer += token_.lexeme_[0];
+		GetNextToken();
 	}
 	if (buffer.empty())
 		Error("缺少重复次数");
