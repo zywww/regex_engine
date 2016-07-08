@@ -1,120 +1,3 @@
-//#include <string>
-//#include <iostream>
-//#include <cctype>
-//#include <cassert>
-//#include "Parser.h"
-//#include "Nfa.h"
-//
-//using std::string;
-//using std::cout;
-//using std::endl;
-//
-//Parser::Parser(string regualrExpr, std::string matchContent) 
-//	: regex_(regualrExpr), matchContent_(matchContent), ch_(regex_[0])
-//{
-//}
-//
-//void Parser::Parse()
-//{
-//	AstNode *astRoot = Regex();
-//	
-//	
-//	if (index_ < regex_.length())
-//		error_ = true;
-//
-//	if (error_)
-//		cout << "regex syntex error!" << endl;
-//	else
-//	{
-//		auto nfa = astRoot->constructNFA();
-//		nfa.second->accept = true;
-//		bool accept = RunNfa(nfa.first, matchContent_);
-//
-//		cout << "regex syntex right." << endl;
-//		if (accept)
-//			cout << "match" << endl;
-//		else
-//			cout << "not match" << endl;
-//		//astRoot->print();
-//	}
-//		
-//}
-//
-//AstNode* Parser::Regex()
-//{
-//	AstNode *node = Concat();
-//	while (Match('|'))
-//	{
-//		Read();
-//		node = new AstOR(node, Concat());
-//	}
-//	return node;
-//}
-//
-//AstNode* Parser::Concat()
-//{
-//	AstNode *node = Element();
-//	while (std::isalnum(ch_) || Match('('))
-//		node = new AstConcat(node, Element());
-//	return node;
-//}
-//
-//AstNode* Parser::Element()
-//{
-//	AstNode *node = Factor();
-//	if (Match('*'))
-//	{
-//		node = new AstStar(node);
-//		Read();
-//	}
-//	return node;
-//}
-//
-//AstNode* Parser::Factor()
-//{
-//	AstNode * node = nullptr;
-//	if (Match('('))
-//	{
-//		Read();
-//		node = Regex();
-//		if (Match(')'))
-//		{
-//			Read();
-//		}
-//		else
-//		{
-//			assert(false && "缺少 ')'");
-//		}
-//	}
-//	else if (std::isalnum(ch_))
-//	{
-//		node = new AstFactor(ch_);
-//		Read();
-//	}
-//	else
-//	{
-//		assert(false && "缺少因子");
-//		error_ = true;
-//		Read();
-//	}
-//	return node;
-//}
-//
-//void Parser::Read()
-//{
-//	ch_ = regex_[++index_];
-//	if (index_ >= regex_.length())
-//		ch_ = '\0';
-//}
-//
-//bool Parser::Match(char ch)
-//{
-//	if (ch_ == ch)
-//		return true;
-//	else
-//		return false;
-//}
-
 #include <iostream>
 #include <cctype>
 #include "Parser.h"	
@@ -167,18 +50,15 @@ void Parser::Regex()
 		Term();
 	}
 }
-
+ 
 void Parser::Term()
 {
 	Factor();
-	//while (!(Match(TokenType::OR) || Match(TokenType::END)))//factor的首字母
-	//{
-	//	Factor();
-	//}
+
 	while (true)
 	{
 		bool into = false;
-		switch (token_.type_)
+		switch (token_.type_)		// 如果下一个 token 属于 factor 则调用 factor，否则 term 调用结束
 		{
 		case TokenType::LBRACKET:
 		case TokenType::LP:
@@ -212,7 +92,8 @@ void Parser::Factor()
 	case TokenType::ZERO_OR_MORE:
 	case TokenType::ONE_OR_MORE:
 	case TokenType::ZERO_OR_ONE:
-		Repeat(); break;
+		Repeat(); 
+		break;
 	default:
 		// do nothing
 		break;
@@ -231,7 +112,7 @@ void Parser::Atom()
 		break;
 	case TokenType::LBRACKET:
 		GetNextToken();
-		if (Match(TokenType::NEGATE))
+		/*if (Match(TokenType::NEGATE))
 		{
 			GetNextToken();
 			Charclass();
@@ -247,7 +128,14 @@ void Parser::Atom()
 				Error("缺少 ']'");
 			else
 				GetNextToken();
-		}
+		}*/
+		if (Match(TokenType::NEGATE))
+			GetNextToken();
+		Charclass();
+		if (!Match(TokenType::RBRACKET))
+			Error("缺少 ']'");
+		else
+			GetNextToken();
 		break;
 	default:
 		Character();
@@ -273,8 +161,7 @@ void Parser::Repeat()
 			else
 			{
 				max = Digit();
-				GetNextToken();
-				if (Match(TokenType::RBRACE))
+				if (!Match(TokenType::RBRACE))
 					Error("缺少 '}'");
 				else
 					GetNextToken();
@@ -286,7 +173,7 @@ void Parser::Repeat()
 		}
 		else
 		{
-			Error("");
+			Error("'{' '}'内语法错误");
 		}
 		break;
 	case TokenType::ZERO_OR_MORE:
@@ -347,7 +234,7 @@ void Parser::Charrange()
 int Parser::Digit()
 {
 	string buffer;
-	while (Match(TokenType::SIMPLE_CHAR) && std::isalnum(token_.lexeme_[0]))
+	while (Match(TokenType::SIMPLE_CHAR) && std::isdigit(token_.lexeme_[0]))
 	{
 		buffer += token_.lexeme_[0];
 		GetNextToken();
