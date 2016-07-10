@@ -1,16 +1,16 @@
-#include "Nfa.h"
+#include "NFA.h"
 
 using std::set;
 using std::string;
 
-NfaEdge::NfaEdge(NfaState *start, NfaState *end, char match)
+NFAEdge::NFAEdge(NFAState *start, NFAState *end, char match)
 	: startState_(start), endState_(end), matchContent_(match)
 {
 	startState_->outEdges_.push_back(this);
 	endState_->inEdges_.push_back(this);
 }
 
-bool RunNfa(NfaState *start, string matchString)
+bool RunNfa(NFAState *start, string matchString)
 {
 	auto stateSet = EpsilonClosure({ start });
 	string::size_type index = 0;
@@ -31,9 +31,9 @@ bool RunNfa(NfaState *start, string matchString)
 	
 }
 
-set<NfaState*> EpsilonClosure(set<NfaState*> oldSet)
+set<NFAState*> EpsilonClosure(set<NFAState*> oldSet)
 {
-	set<NfaState*> newSet;
+	set<NFAState*> newSet;
 	for (auto state : oldSet)
 		if (newSet.find(state) == newSet.end())
 			AddState(newSet, state);
@@ -41,9 +41,9 @@ set<NfaState*> EpsilonClosure(set<NfaState*> oldSet)
 	return newSet;
 }
 
-set<NfaState*> Move(set<NfaState*> oldSet, char ch)
+set<NFAState*> Move(set<NFAState*> oldSet, char ch)
 {
-	auto newSet = set<NfaState*>();
+	auto newSet = set<NFAState*>();
 	for (auto state : oldSet)
 		for (auto edge : state->outEdges_)
 		{
@@ -54,7 +54,7 @@ set<NfaState*> Move(set<NfaState*> oldSet, char ch)
 	return newSet;
 }
 
-void AddState(std::set<NfaState*> &newSet, NfaState *state)
+void AddState(std::set<NFAState*> &newSet, NFAState *state)
 {
 	newSet.insert(state);
 	for (auto outEdge : state->outEdges_)

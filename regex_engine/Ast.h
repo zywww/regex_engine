@@ -1,70 +1,146 @@
+//#ifndef ast_h
+//#define ast_h
+//
+//#include <utility>	
+//#include "nfa.h"
+//
+//using stateptrpair = std::pair<nfastate*, nfastate*>;
+//
+//class ASTnode
+//{
+//public:
+//	virtual void print();
+//	virtual stateptrpair constructnfa();
+//};
+//
+//class astfactor : public astnode
+//{
+//public:
+//	astfactor(char ch);
+//	
+//	void print();
+//
+//	stateptrpair constructnfa();
+//
+//private:
+//	char		ch_;
+//};
+//
+//class astor : public astnode
+//{
+//public:
+//	astor(astnode *leftnode, astnode *rightnode);
+//
+//	void print();
+//
+//	stateptrpair constructnfa();
+//
+//private:
+//	astnode		*leftnode_;
+//	astnode		*rightnode_;
+//};
+//
+//class astconcat : public astnode
+//{
+//public:
+//	astconcat(astnode *leftnode, astnode *rightnode);
+//
+//	void print();
+//
+//	stateptrpair constructnfa();
+//
+//private:
+//	astnode		*leftnode_;
+//	astnode		*rightnode_;
+//};
+//
+//class aststar : public astnode
+//{
+//public:
+//	aststar(astnode *node);
+//
+//	void print();
+//
+//	stateptrpair constructnfa();
+//
+//private:
+//	astnode		*node_;
+//};
+//
+//#endif
+//
+
 #ifndef AST_H
 #define AST_H
 
 #include <utility>	
-#include "Nfa.h"
+#include "nfa.h"
 
-using StatePtrPair = std::pair<NfaState*, NfaState*>;
+using StatePtrPair = std::pair<NFAState*, NFAState*>;
 
-class AstNode
+class ASTNode
 {
 public:
-	virtual void print();
-	virtual StatePtrPair constructNFA();
+	virtual void			Print();
+	virtual StatePtrPair	ConstructNFA();
+
 };
 
-class AstFactor : public AstNode
+
+class ASTOR : public ASTNode
 {
 public:
-	AstFactor(char ch);
-	
-	void print();
+	ASTOR(ASTNode *leftNode, ASTNode *rightNode);
 
-	StatePtrPair constructNFA();
+	virtual void			Print();
+	virtual StatePtrPair	ConstructNFA();
 
 private:
-	char		ch_;
+	ASTNode					*leftNode_;
+	ASTNode					*rightNode_;
 };
 
-class AstOR : public AstNode
+
+class ASTConcat : public ASTNode
 {
 public:
-	AstOR(AstNode *leftNode, AstNode *rightNode);
+	ASTConcat(ASTNode *leftNode, ASTNode *rightNode);
 
-	void print();
-
-	StatePtrPair constructNFA();
+	virtual void			Print();
+	virtual StatePtrPair	ConstructNFA();
 
 private:
-	AstNode		*leftNode_;
-	AstNode		*rightNode_;
+	ASTNode					*leftNode_;
+	ASTNode					*rightNode_;
 };
 
-class AstConcat : public AstNode
+
+class ASTRepeat : public ASTNode
 {
 public:
-	AstConcat(AstNode *leftNode, AstNode *rightNode);
+	ASTRepeat(ASTNode *node, int min, int max);
 
-	void print();
+	virtual void			Print();
+	virtual StatePtrPair	ConstructNFA();
 
-	StatePtrPair constructNFA();
-
-private:
-	AstNode		*leftNode_;
-	AstNode		*rightNode_;
+private:		
+	ASTNode					*node_;
+	int						min_;
+	int						max_;
 };
 
-class AstStar : public AstNode
+
+class ASTFactor : public ASTNode
 {
 public:
-	AstStar(AstNode *node);
+	ASTFactor(char ch);
 
-	void print();
-
-	StatePtrPair constructNFA();
+	virtual void			Print();
+	virtual StatePtrPair	ConstructNFA();
 
 private:
-	AstNode		*node_;
+	char					ch_;
 };
+
 
 #endif

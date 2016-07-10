@@ -5,23 +5,23 @@
 #include <string>
 #include <set>
 
-class NfaEdge;
+class NFAEdge;
 
-class NfaState
+class NFAState
 {
 public:
-	std::vector<NfaEdge*>		inEdges_;
-	std::vector<NfaEdge*>		outEdges_;
+	std::vector<NFAEdge*>		inEdges_;
+	std::vector<NFAEdge*>		outEdges_;
 	bool						accept = false;
 };
 
-class NfaEdge
+class NFAEdge
 {
 public:
-	NfaEdge(NfaState *start, NfaState *end, char match);
+	NFAEdge(NFAState *start, NFAState *end, char match);
 
-	NfaState				*startState_;
-	NfaState				*endState_;
+	NFAState				*startState_;
+	NFAState				*endState_;
 	char					matchContent_;
 
 	// void					initEdge(NfaState *start, NfaState *end);
@@ -29,9 +29,9 @@ public:
 
 
 
-bool					RunNfa(NfaState *start, std::string matchString);
-std::set<NfaState*>		EpsilonClosure(std::set<NfaState*> oldSet);
-std::set<NfaState*>		Move(std::set<NfaState*> oldSet, char ch);
-void					AddState(std::set<NfaState*> &newSet, NfaState *state);
+bool					RunNfa(NFAState *start, std::string matchString);
+std::set<NFAState*>		EpsilonClosure(std::set<NFAState*> oldSet);
+std::set<NFAState*>		Move(std::set<NFAState*> oldSet, char ch);
+void					AddState(std::set<NFAState*> &newSet, NFAState *state);
 
 #endif
