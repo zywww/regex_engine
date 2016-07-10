@@ -81,8 +81,8 @@ using StatePtrPair = std::pair<NFAState*, NFAState*>;
 class ASTNode
 {
 public:
-	virtual void			Print();
-	virtual StatePtrPair	ConstructNFA();
+	virtual void			Print() {}
+	virtual StatePtrPair	ConstructNFA() { return StatePtrPair{ nullptr, nullptr }; }
 
 };
 

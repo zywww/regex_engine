@@ -130,6 +130,7 @@
 
 using std::cout;
 using std::endl;
+using std::make_pair;
 
 ASTOR::ASTOR(ASTNode *leftNode, ASTNode *rightNode)
 	: leftNode_(leftNode), rightNode_(rightNode)
@@ -147,7 +148,25 @@ void ASTOR::Print()
 
 StatePtrPair ASTOR::ConstructNFA()
 {
-
+	if (leftNode_)
+	{
+		auto left = leftNode_->ConstructNFA();
+		auto right = rightNode_->ConstructNFA();
+		
+		auto start = new NFAState();
+		auto end = new NFAState();
+		
+		auto startToLeft = new NFAEdge(start, left.first, '\0');
+		auto startToRight = new NFAEdge(start, right.first, '\0');
+		auto leftToEnd = new NFAEdge(left.second, end, '\0');
+		auto rightToEnd = new NFAEdge(right.second, end, '\0');
+		
+		return make_pair(start, end);
+	}
+	else
+	{
+		return rightNode_->ConstructNFA();
+	}
 }
 
 // Class ASTOR End
@@ -167,7 +186,16 @@ void ASTConcat::Print()
 
 StatePtrPair ASTConcat::ConstructNFA()
 {
-
+	auto left = leftNode_->ConstructNFA();
+	auto right = rightNode_->ConstructNFA();
+	
+	for (auto edge : right.first->outEdges_)
+	{
+		edge->startState_ = left.second;
+		left.second->outEdges_.push_back(edge);
+	}
+		
+	return make_pair(left.first, right.second);
 }
 
 // Class ASTConcat End
@@ -186,7 +214,21 @@ void ASTRepeat::Print()
 
 StatePtrPair ASTRepeat::ConstructNFA()
 {
+	auto repeatStart = new NFAState();
+	auto repeatEnd = new NFAState();
+	auto repeatPair = node_->ConstructNFA();
+	auto repeatInEdge = new NFAEdge(repeatStart, repeatPair.first, '\0');
+	auto repeatOutEdge = new NFAEdge(repeatPair.second, repeatEnd, '\0');
+	
+	for (int i = 0; i <= min_; ++i)
+	{
+		auto newEdge = 
+	}
 
+	if (max_ == -1)
+	{
+
+	}
 }
 
 // Class ASTRepeat End
@@ -202,7 +244,10 @@ void ASTFactor::Print()
 
 StatePtrPair ASTFactor::ConstructNFA()
 {
-
+	auto start	= new NFAState();
+	auto end = new NFAState();
+	auto edge = new NFAEdge(start, end, ch_);
+	return make_pair(start, end);
 }
 
 // Class SATFactor End

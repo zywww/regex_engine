@@ -1,11 +1,14 @@
+#include <set>
 #include <iostream>
 #include <cctype>
 #include "Parser.h"	
 
+
 using std::endl;
 using std::cout;
 using std::string;
-
+using std::pair;
+using std::set;
 
 Parser::Parser(const std::string &regex) : lex_(regex), token_(TokenType::END, "\0")
 {
@@ -32,28 +35,39 @@ void Parser::Error(const string &info)
 
 void Parser::Parse()
 {
-	Regex();
+	ASTNode* root = Regex();
+	
 	if (!Match(TokenType::END))
 		error_ = true;
+
 	if (error_)
+	{
 		cout << "正则表达式语法错误" << endl;
+	}
 	else
+	{
+		if (root)
+			root->Print();
 		cout << "正则表达式语法正确" << endl;
+	}
+	
 }
 
-void Parser::Regex()
+ASTNode* Parser::Regex()
 {
-	Term();
+	ASTNode* node = Term();
 	while (Match(TokenType::OR))
 	{
 		GetNextToken();
-		Term();
+		node = new ASTOR(node, Term());
 	}
+	
+	return node;
 }
  
-void Parser::Term()
+ASTNode* Parser::Term()
 {
-	Factor();
+	ASTNode* node = Factor();
 
 	while (true)
 	{
@@ -71,7 +85,7 @@ void Parser::Term()
 		case TokenType::NOT_SPACE:
 		case TokenType::WORD:
 		case TokenType::NOT_WORD:
-			Factor();
+			node = new ASTConcat(node, Factor());
 			into = true;
 			break;
 		default:
@@ -81,71 +95,71 @@ void Parser::Term()
 		if (!into)
 			break;
 	}
+
+	return node;
 }
 
-void Parser::Factor()
+ASTNode* Parser::Factor()
 {
-	Atom();
+	ASTNode* node = Atom();
+	std::pair<int, int> minAndMax{ 1,1 };
 	switch (token_.type_)
 	{
 	case TokenType::LBRACE:
 	case TokenType::ZERO_OR_MORE:
 	case TokenType::ONE_OR_MORE:
 	case TokenType::ZERO_OR_ONE:
-		Repeat(); 
+		minAndMax = Repeat();
 		break;
 	default:
 		// do nothing
 		break;
 	}
+
+	return new ASTRepeat(node, minAndMax.first, minAndMax.second);
 }
 
-void Parser::Atom()
+ASTNode* Parser::Atom()
 {
+	ASTNode* node = nullptr;
+	bool negate = false;
+	set<char> range;
 	switch (token_.type_)
 	{
 	case TokenType::LP: 
 		GetNextToken(); 
-		Regex(); 
+		node = Regex(); 
 		if (!Match(TokenType::RP)) Error("缺少右括号 ')'");
 		else GetNextToken();
 		break;
+
 	case TokenType::LBRACKET:
 		GetNextToken();
-		/*if (Match(TokenType::NEGATE))
-		{
-			GetNextToken();
-			Charclass();
-			if (!Match(TokenType::RBRACKET))
-				Error("缺少 ']'");
-			else
-				GetNextToken();
-		}
-		else
-		{
-			Charclass();
-			if (!Match(TokenType::RBRACKET))
-				Error("缺少 ']'");
-			else
-				GetNextToken();
-		}*/
 		if (Match(TokenType::NEGATE))
+		{
 			GetNextToken();
-		Charclass();
+			negate = true;
+		}
+		node = Charclass(negate);
 		if (!Match(TokenType::RBRACKET))
 			Error("缺少 ']'");
 		else
 			GetNextToken();
 		break;
+
 	default:
-		Character();
+		range = Character();
+		for (auto ch : range)
+			node = new ASTOR(node, new ASTFactor(ch));
 	}
+	
+	return node;
 }
 
-void Parser::Repeat()
+std::pair<int, int> Parser::Repeat()
 {
-	int min = 0;
-	int max = 0;
+	int min = -1;
+	int max = -1;
 	switch (token_.type_)
 	{
 	case TokenType::LBRACE:
@@ -169,6 +183,7 @@ void Parser::Repeat()
 		}
 		else if (Match(TokenType::RBRACE))
 		{
+			max = min;
 			GetNextToken();
 		}
 		else
@@ -176,58 +191,159 @@ void Parser::Repeat()
 			Error("'{' '}'内语法错误");
 		}
 		break;
+
 	case TokenType::ZERO_OR_MORE:
+		min = 0;
 		GetNextToken();
 		break;
+
 	case TokenType::ONE_OR_MORE:
+		min = 1;
 		GetNextToken();
 		break;
+
 	case TokenType::ZERO_OR_ONE:
+		min = 0;
+		max = 1;
 		GetNextToken();
 		break;
 	default:
 		Error(string("错误的符号 '") + token_.lexeme_ + '\'');
 	}
+	return std::pair<int, int>{min, max};
 }
 
-void Parser::Character()
+set<char> Parser::Character()
 {
 	const auto type = token_.type_;
+	set<char> chSet;
+
 	switch (type)
 	{
 	case TokenType::SIMPLE_CHAR:
-		GetNextToken(); 
+		chSet.insert(token_.lexeme_[0]);
+		GetNextToken(); 	
 		break;
+
 	case TokenType::TAB:
+		chSet.insert('\t');
+		GetNextToken();
+		break;
+
 	case TokenType::NEWLINE:
+		chSet.insert('\n');
+		GetNextToken();
+		break;
+
 	case TokenType::DIGIT:
+		for (char ch = '0'; ch <= '9'; ++ch)
+			chSet.insert(ch);
+		GetNextToken();
+		break;
+
 	case TokenType::NOT_DIGIT:
+		for (char ch = ' '; ch <= '~'; ++ch)
+			if (!std::isdigit(ch))
+				chSet.insert(ch);
+		GetNextToken();
+		break;
+
 	case TokenType::SPACE:
+		chSet.insert(' ');
+		GetNextToken();
+		break;
+
 	case TokenType::NOT_SPACE:
+		for (char ch = ' ' + 1; ch <= '~'; ++ch)
+			chSet.insert(ch);
+		GetNextToken();;
+		break;
+
 	case TokenType::WORD:
+		for (char ch = ' '; ch <= '~'; ++ch)
+			if (std::isalnum(ch) || ch == '_')
+				chSet.insert(ch);
+		GetNextToken();
+		break;
+
 	case TokenType::NOT_WORD:
+		for (char ch = ' '; ch <= '~'; ++ch)
+			if (!(std::isalnum(ch) || ch == '_'))
+				chSet.insert(ch);
 		GetNextToken();
 		break;
 	default:
 		Error("错误的因子");
 	}
+	
+	return chSet;
 }
 
-void Parser::Charclass()
+ASTNode* Parser::Charclass(bool negate)
 {
+	set<char> chSet;
+	set<char> negateCHSet;
 	while (!Match(TokenType::RBRACKET))
 	{
-		Charrange();
+		set<char> range = Charrange();
+		for (auto ch : range)
+			chSet.insert(ch);
 	}
+	// 如果集合为空可以吗
+
+	ASTNode *node = nullptr;
+
+	if (negate)
+	{
+		for (char ch = ' '; ch <= '~'; ++ch)
+			if (chSet.find(ch) == chSet.end())
+				negateCHSet.insert(ch);
+		for (auto ch : negateCHSet)
+			node = new ASTOR(node, new ASTFactor(ch));
+	}
+	else
+	{
+		for (auto ch : chSet)
+			node = new ASTOR(node, new ASTFactor(ch));
+	}
+
+	return node;	// ASTOR 中的子节点可能为 nullptr
 }
 
-void Parser::Charrange()
+set<char> Parser::Charrange()
 {
-	Character();
+	set<char> begin = Character();
+	set<char> end;
+	bool range = false;
 	if (Match(TokenType::HYPHEN))
 	{
 		GetNextToken();
-		Character();
+		end = Character();
+		range = true;
+	}
+
+	if (range)
+	{
+		if (begin.size() != 1 || end.size() != 1)
+		{
+			Error("字符集合 [] 中范围错误");
+			return begin;
+		}
+
+		if (*begin.begin() > *end.begin())
+		{
+			Error("字符集合 [] 中范围错误");
+			return begin;
+		}
+
+		set<char> range;
+		for (char ch = *begin.begin(); ch <= *end.begin(); ++ch)
+			range.insert(ch);	
+		return range;
+	}
+	else
+	{
+		return begin;
 	}
 }
 

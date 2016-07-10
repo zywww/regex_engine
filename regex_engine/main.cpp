@@ -14,9 +14,9 @@ int main()
 	//Lexer lex("\\0\\1\\2\\3\\4\\5\\6\\7\\8\\9\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z");
 	//Lexer lex("\\!\\\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,\\-\\.\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~");
 	
-	//Parser engine("abc|([^aya-zlp-ks])*s+ w{1,2}\\s?");
-	//Parser engine("([3])");
-	Parser engine("");
+	//Parser engine("abc|([^aya-zlk-ps])*s+ w{1,2}\\s?");
+	//Parser engine("[]");
+	Parser engine("a");
 	engine.Parse();
 
 	system("pause");
