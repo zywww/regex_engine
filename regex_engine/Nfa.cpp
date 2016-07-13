@@ -10,7 +10,7 @@ NFAEdge::NFAEdge(NFAState *start, NFAState *end, char match)
 	endState_->inEdges_.push_back(this);
 }
 
-bool RunNfa(NFAState *start, string matchString)
+bool RunNFA(NFAState *start, string matchString)
 {
 	auto stateSet = EpsilonClosure({ start });
 	string::size_type index = 0;
@@ -28,7 +28,6 @@ bool RunNfa(NFAState *start, string matchString)
 			accept = true;
 
 	return accept;
-	
 }
 
 set<NFAState*> EpsilonClosure(set<NFAState*> oldSet)

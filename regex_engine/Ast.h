@@ -96,8 +96,8 @@ public:
 	virtual StatePtrPair	ConstructNFA();
 
 private:
-	ASTNode					*leftNode_;
-	ASTNode					*rightNode_;
+	ASTNode*				leftNode_;
+	ASTNode*				rightNode_;
 };
 
 
@@ -110,24 +110,60 @@ public:
 	virtual StatePtrPair	ConstructNFA();
 
 private:
-	ASTNode					*leftNode_;
-	ASTNode					*rightNode_;
+	ASTNode*				leftNode_;
+	ASTNode*				rightNode_;
 };
 
 
-class ASTRepeat : public ASTNode
+//class ASTRepeat : public ASTNode
+//{
+//public:
+//	ASTRepeat(ASTNode *node, int min, int max);
+//
+//	virtual void			Print();
+//	virtual StatePtrPair	ConstructNFA();
+//
+//private:		
+//	ASTNode*				node_;
+//	int						min_;
+//	int						max_;
+//};
+
+class ASTStar : public ASTNode
 {
 public:
-	ASTRepeat(ASTNode *node, int min, int max);
+	ASTStar(ASTNode *node);
 
 	virtual void			Print();
 	virtual StatePtrPair	ConstructNFA();
 
-private:		
-	ASTNode					*node_;
-	int						min_;
-	int						max_;
+private:
+	ASTNode*				node_;
 };
+
+//class ASTPlus : public ASTNode
+//{
+//public:
+//	ASTPlus(ASTNode *node);
+//
+//	virtual void			Print();
+//	virtual StatePtrPair	ConstructNFA();
+//
+//private:
+//	ASTNode*				node_;
+//};
+//
+//class ASTInterrogation : public ASTNode
+//{
+//public:
+//	ASTInterrogation(ASTNode* node);
+//
+//	virtual void			Print();
+//	virtual StatePtrPair	ConstructNFA();
+//
+//private:
+//	ASTNode*				node_;
+//};
 
 
 class ASTFactor : public ASTNode

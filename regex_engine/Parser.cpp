@@ -10,7 +10,8 @@ using std::string;
 using std::pair;
 using std::set;
 
-Parser::Parser(const std::string &regex) : lex_(regex), token_(TokenType::END, "\0")
+Parser::Parser(const std::string &regex, const std::string &matchContent) 
+	: lex_(regex), token_(TokenType::END, "\0"), matchContent_(matchContent)
 {
 	GetNextToken();
 }
@@ -46,9 +47,17 @@ void Parser::Parse()
 	}
 	else
 	{
-		if (root)
-			root->Print();
 		cout << "正则表达式语法正确" << endl;
+		if (root)
+		{
+			auto nodePair = root->ConstructNFA();
+			nodePair.second->accept = true;
+			if (RunNFA(nodePair.first, matchContent_))
+				cout << "匹配成功" << endl;
+			else
+				cout << "匹配失败" << endl;
+		}
+		
 	}
 	
 }
@@ -112,11 +121,72 @@ ASTNode* Parser::Factor()
 		minAndMax = Repeat();
 		break;
 	default:
-		// do nothing
-		break;
+		return node;		// 若没有重复范围，直接返回 node
+	}
+	
+	//if (minAndMax.first == 0 && minAndMax.second == -1)				// 如 ab*
+	//{
+	//	return new ASTStar(node);
+	//}
+	//else if (minAndMax.first == 1 && minAndMax.second == -1)		// 如 ab+
+	//{
+	//	return new ASTConcat(node, new ASTStar(node));
+	//}
+	//else if (minAndMax.first == 0 && minAndMax.second == 1)			// 如 ab?
+	//{
+	//	return new ASTOR(new ASTFactor('\0'), node);
+	//}
+	//else
+	//{
+	//	ASTNode* resultPart1 = new ASTFactor('\0');
+	//	for (int i = 1; i <= minAndMax.first; ++i)
+	//		resultPart1 = new ASTConcat(resultPart1, node);
+
+	//	if (minAndMax.second == -1)
+	//	{
+	//		return new ASTConcat(resultPart1, new ASTStar(node));
+	//	}
+
+	//	
+	//	ASTNode* resultPart2 = new ASTFactor('\0');
+	//	for (int i = 1; i <= minAndMax.second - minAndMax.first; ++i)
+	//	{
+	//		ASTNode* temp = new ASTFactor('\0');
+	//		for (int j = 1; j <= i; ++j)
+	//		{
+	//			temp = new ASTConcat(temp, node);
+	//		}
+	//		resultPart2 = new ASTOR(resultPart2, temp);
+	//	}
+	//	
+	//	return new ASTConcat(resultPart1, resultPart2);
+	//}
+
+	
+	// 提取公因子的第一部分
+	ASTNode* resultPart1 = new ASTFactor('\0');
+	for (int i = 1; i <= minAndMax.first; ++i)
+		resultPart1 = new ASTConcat(resultPart1, node);
+
+	ASTNode* resultPart2 = new ASTFactor('\0');
+	if (minAndMax.second == -1)
+	{
+		resultPart2 = new ASTStar(node);
+	}
+	else
+	{
+		for (int i = 1; i <= minAndMax.second - minAndMax.first; ++i)
+		{
+			ASTNode* temp = new ASTFactor('\0');
+			for (int j = 1; j <= i; ++j)
+			{
+				temp = new ASTConcat(temp, node);
+			}
+			resultPart2 = new ASTOR(resultPart2, temp);
+		}
 	}
 
-	return new ASTRepeat(node, minAndMax.first, minAndMax.second);
+	return new ASTConcat(resultPart1, resultPart2);
 }
 
 ASTNode* Parser::Atom()
@@ -175,6 +245,10 @@ std::pair<int, int> Parser::Repeat()
 			else
 			{
 				max = Digit();
+				if (min > max)
+				{
+					Error("{ } 中的范围错误");
+				}
 				if (!Match(TokenType::RBRACE))
 					Error("缺少 '}'");
 				else

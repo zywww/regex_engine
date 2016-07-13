@@ -200,38 +200,99 @@ StatePtrPair ASTConcat::ConstructNFA()
 
 // Class ASTConcat End
 
-ASTRepeat::ASTRepeat(ASTNode *node, int min, int max)
-	: node_(node), min_(min), max_(max)
+//ASTRepeat::ASTRepeat(ASTNode *node, int min, int max)
+//	: node_(node), min_(min), max_(max)
+//{
+//}
+//
+//void ASTRepeat::Print()
+//{
+//	if (node_)
+//		node_->Print();
+//	cout << "重复 " << min_ << "次到 " << max_ << "次" << endl;
+//}
+//
+//StatePtrPair ASTRepeat::ConstructNFA()
+//{
+//	auto repeatStart = new NFAState();
+//	auto repeatEnd = new NFAState();
+//	auto repeatPair = node_->ConstructNFA();
+//	auto repeatInEdge = new NFAEdge(repeatStart, repeatPair.first, '\0');
+//	auto repeatOutEdge = new NFAEdge(repeatPair.second, repeatEnd, '\0');
+//	
+//	for (int i = 0; i <= min_; ++i)
+//	{
+//		// newEdge = 
+//	}
+//
+//	if (max_ == -1)
+//	{
+//
+//	}
+//}
+
+// Class ASTRepeat End
+
+ASTStar::ASTStar(ASTNode *node) : node_(node)
 {
 }
 
-void ASTRepeat::Print()
+void ASTStar::Print()
 {
 	if (node_)
 		node_->Print();
-	cout << "重复 " << min_ << "次到 " << max_ << "次" << endl;
+	cout << "*" << endl;
 }
 
-StatePtrPair ASTRepeat::ConstructNFA()
+StatePtrPair ASTStar::ConstructNFA()
 {
-	auto repeatStart = new NFAState();
-	auto repeatEnd = new NFAState();
-	auto repeatPair = node_->ConstructNFA();
-	auto repeatInEdge = new NFAEdge(repeatStart, repeatPair.first, '\0');
-	auto repeatOutEdge = new NFAEdge(repeatPair.second, repeatEnd, '\0');
+	auto node = node_->ConstructNFA();
+	auto start = new NFAState();
+	auto end = new NFAState();
 	
-	for (int i = 0; i <= min_; ++i)
-	{
-		auto newEdge = 
-	}
-
-	if (max_ == -1)
-	{
-
-	}
+	auto startToNode = new NFAEdge(start, node.first, '\0');
+	auto startToEnd = new NFAEdge(start, end, '\0');
+	auto nodeToNode = new NFAEdge(node.second, node.first, '\0');
+	auto nodeToEnd = new NFAEdge(node.second, end, '\0');
+	
+	return make_pair(start, end);
 }
 
-// Class ASTRepeat End
+// class ASTStar end
+
+//ASTPlus::ASTPlus(ASTNode *node) : node_(node)
+//{
+//}
+//
+//void ASTPlus::Print()
+//{
+//	if (node_)
+//		node_->Print();
+//	cout << "+" << endl;
+//}
+//
+//StatePtrPair ASTPlus::ConstructNFA()
+//{
+//
+//}
+//
+//// class ASTPlus end
+//
+//ASTInterrogation::ASTInterrogation(ASTNode *node) : node_(node)
+//{
+//}
+//
+//void ASTInterrogation::Print()
+//{
+//	if (node_)
+//		node_->Print();
+//	cout << "?" << endl;
+//}
+//
+//StatePtrPair ASTInterrogation::ConstructNFA()
+//{
+//}
+// class ASTInterrogation end
 
 ASTFactor::ASTFactor(char ch) : ch_(ch)
 {

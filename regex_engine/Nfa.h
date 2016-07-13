@@ -29,7 +29,7 @@ public:
 
 
 
-bool					RunNfa(NFAState *start, std::string matchString);
+bool					RunNFA(NFAState *start, std::string matchString);
 std::set<NFAState*>		EpsilonClosure(std::set<NFAState*> oldSet);
 std::set<NFAState*>		Move(std::set<NFAState*> oldSet, char ch);
 void					AddState(std::set<NFAState*> &newSet, NFAState *state);

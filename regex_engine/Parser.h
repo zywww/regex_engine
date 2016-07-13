@@ -9,13 +9,14 @@
 class Parser
 {
 public:
-	Parser(const std::string &regex);
+	Parser(const std::string &regex, const std::string &matchContent);
 
 	void					Parse();
 
 private:
 	Lexer					lex_;
 	Token					token_;
+	std::string				matchContent_;
 	bool					error_ = false;
 
 	void					Error(const std::string &info);
@@ -27,10 +28,10 @@ private:
 	ASTNode*				Factor();
 	ASTNode*				Atom();
 	std::pair<int, int>		Repeat();
-	std::set<char>				Character();
+	std::set<char>			Character();
 	ASTNode*				Charclass(bool negate);
 	int						Digit();
-	std::set<char>				Charrange();
+	std::set<char>			Charrange();
 
 };
 

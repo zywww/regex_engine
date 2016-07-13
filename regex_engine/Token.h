@@ -13,7 +13,7 @@ enum class TokenType
 	ONE_OR_MORE,	// +
 	ZERO_OR_ONE,	// ?
 	HYPHEN,			// -   连接号
-	ANY,			// .
+	ANY,			// .   任意字符
 	LBRACKET,		// [
 	RBRACKET,		// ]
 	BACKSLASH,		// \\  反斜杠

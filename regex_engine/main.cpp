@@ -16,9 +16,9 @@ int main()
 	
 	//Parser engine("abc|([^aya-zlk-ps])*s+ w{1,2}\\s?");
 	//Parser engine("[]");
-	Parser engine("a");
+	Parser engine("[a-d]{2,4}|qqq", "aadc");
 	engine.Parse();
-
+	
 	system("pause");
 	return 0;
 }
