@@ -94,6 +94,7 @@ ASTNode* Parser::Term()
 		case TokenType::NOT_SPACE:
 		case TokenType::WORD:
 		case TokenType::NOT_WORD:
+		case TokenType::ANY:
 			node = new ASTConcat(node, Factor());
 			into = true;
 			break;
@@ -215,6 +216,13 @@ ASTNode* Parser::Atom()
 			Error("»±…Ÿ ']'");
 		else
 			GetNextToken();
+		break;
+
+	case TokenType::ANY:
+		node = new ASTFactor(' ');
+		for (char ch = '!'; ch <= '~'; ++ch)
+			node = new ASTOR(node, new ASTFactor(ch));
+		GetNextToken();
 		break;
 
 	default:

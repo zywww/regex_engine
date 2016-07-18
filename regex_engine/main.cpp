@@ -16,7 +16,8 @@ int main()
 	
 	//Parser engine("abc|([^aya-zlk-ps])*s+ w{1,2}\\s?");
 	//Parser engine("[]");
-	Parser engine("[a-d]{2,4}|qqq", "aadc");
+	//Parser engine("(a?){100}a{100}", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	Parser engine("\\na", "\naa");
 	engine.Parse();
 	
 	system("pause");
